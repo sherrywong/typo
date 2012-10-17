@@ -146,7 +146,7 @@ class ArticlesController < ContentController
     render :text => TextFilter.find(params[:id]).commenthelp
   end
 
-  private
+
 
   def verify_config
     if  ! this_blog.configured?

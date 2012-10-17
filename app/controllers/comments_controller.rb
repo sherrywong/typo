@@ -20,11 +20,34 @@ class CommentsController < FeedbackController
       partial = '/articles/comment'
     end
     if request.xhr?
-      render :partial => partial, :object => @comment 
+      render :partial => partial, :object => @comment
     else
       redirect_to @article.permalink_url
     end
   end
+
+  def merge
+    article1_arg = params[:article]
+    article2_arg = params[:merge_with]
+    article1 = Comment.find_by_id (article1_arg)
+    if not Comment.exists?(article2_arg)
+      flash[:error] = _("Sorry, couldn't merge")
+      redirect_to :action => 'index'
+      return
+    elsif Comment.exists?(article1_arg) and Comment.exists?(article2_arg)
+      article2 = Comment.find_by_id (article2_arg)
+      Comment.create!(:title => article1.title, :body => article1.body+article2.body, :author => article1.author, :published => true)
+      Comment.destroy(article1_arg)
+      Comment.destroy(article2_arg)
+
+      flash[:notice] = _("Booh Yeah it merged!")
+      redirect_to :action => 'index'
+    else
+      flash[:error] = _("sorry, couldn't merge")
+      redirect_to :action => 'index'
+    end
+  end
+
 
   def preview
     if !session

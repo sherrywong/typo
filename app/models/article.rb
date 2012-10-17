@@ -95,6 +95,12 @@ class Article < Content
   include Article::States
 
   class << self
+    def edit_merge(article, body)
+      article1 = Article.find_by_id(article)
+      new_article = Article.create!(:title => article1.title, :author => article1.author, :body => body)
+      new_article
+    end
+
     def last_draft(article_id)
       article = Article.find(article_id)
       while article.has_child?
@@ -104,10 +110,10 @@ class Article < Content
     end
 
     def search_with_pagination(search_hash, paginate_hash)
-      
+
       state = (search_hash[:state] and ["no_draft", "drafts", "published", "withdrawn", "pending"].include? search_hash[:state]) ? search_hash[:state] : 'no_draft'
-      
-      
+
+
       list_function  = ["Article.#{state}"] + function_search_no_draft(search_hash)
 
       if search_hash[:category] and search_hash[:category].to_i > 0
@@ -466,4 +472,5 @@ class Article < Content
     to = to - 1 # pull off 1 second so we don't overlap onto the next day
     return from..to
   end
+
 end
